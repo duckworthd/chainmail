@@ -11,8 +11,8 @@ import chainmail
 
 message = (
   chainmail.Message()
-  .sender("duckworthd@gmail.com")
-  .recipient("dux@premise.com")
+  .sender("source@example.com")
+  .recipient("destination@example.com")
   .subject(u"実例")                 # look Ma, unicode "just works"!
   .body(u"これはテストなんですよ")
   .attachment("chainmail.py")
@@ -21,7 +21,7 @@ message = (
 
 smtp = (
   chainmail.SMTP()
-  .host("smtp.gmail.com")
+  .host("smtp.example.com")
   .port(587)
   .username("USER")
   .password("PASSWORD")
