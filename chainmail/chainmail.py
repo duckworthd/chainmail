@@ -217,3 +217,7 @@ class SMTP(object):
 
   def __repr__(self):
     return str(self)
+
+
+class ChainmailException(Exception):
+  pass
