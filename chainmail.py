@@ -8,6 +8,7 @@ import smtplib
 
 
 class Message(object):
+  """An email message"""
 
   def __init__(self):
     self._sender      = 'simplemail@example.com'
@@ -19,6 +20,7 @@ class Message(object):
     self._attachments = []
 
   def sender(self, sender=None):
+    """Get or set email sending this message"""
     if sender is None:
       return self._sender
     else:
@@ -26,6 +28,7 @@ class Message(object):
       return self
 
   def recipients(self, recipients=None):
+    """Get or set all recipients of this email"""
     if recipients is None:
       return self._recipients
     else:
@@ -33,10 +36,12 @@ class Message(object):
       return self
 
   def recipient(self, recipient):
+    """Add a single recipient"""
     self._recipients.append(recipient)
     return self
 
   def subject(self, subject=None):
+    """Set or get email's subject line"""
     if subject is None:
       return self._subject
     else:
@@ -44,12 +49,14 @@ class Message(object):
       return self
 
   def format(self, format=None):
+    """`plain` or `html`"""
     if format is None:
       return self._format
     else:
       self._format = format
       return self
   def body(self, body=None):
+    """Body text of email"""
     if body is None:
       return self._body
     else:
@@ -57,6 +64,7 @@ class Message(object):
       return self
 
   def encoding(self, encoding=None):
+    """text encoding of email body (if not utf8)"""
     if encoding is None:
       return self._encoding
     else:
@@ -64,6 +72,7 @@ class Message(object):
       return self
 
   def attachments(self, attachments=None):
+    """Set or get all attachments"""
     if attachments is None:
       return self._attachments
     else:
@@ -71,10 +80,12 @@ class Message(object):
       return self
 
   def attachment(self, attachment):
+    """Add a single attachment"""
     self._attachments.append(attachment)
     return self
 
   def build(self):
+    """build message string"""
     msg = MIMEMultipart()
     msg['From']     = self._sender
     msg['To']       = COMMASPACE.join(self._recipients)
@@ -129,6 +140,7 @@ class Message(object):
 
 
 class SMTP(object):
+  """Connection to an SMTP service"""
 
   def __init__(self):
     self._host     = 'smtp.gmail.com'
@@ -137,6 +149,7 @@ class SMTP(object):
     self._password = None
 
   def host(self, host=None):
+    """Set host; e.g. smtp.gmail.com"""
     if host is None:
       return self._host
     else:
@@ -144,6 +157,10 @@ class SMTP(object):
       return self
 
   def port(self, port=None):
+    """Set post to connect to host
+
+    Defaults to 25 if username/password is unset; else 587
+    """
     if port is None:
       return self._port
     else:
@@ -151,6 +168,7 @@ class SMTP(object):
       return self
 
   def username(self, username=None):
+    """Set username to login with"""
     if username is None:
       return self._username
     else:
@@ -158,6 +176,7 @@ class SMTP(object):
       return self
 
   def password(self, password=None):
+    """Set password to login with"""
     if password is None:
       return self._password
     else:
@@ -165,6 +184,7 @@ class SMTP(object):
       return self
 
   def send(self, message):
+    """Send a `Message` object"""
     # choose port
     if self._port is not None:
       port = self._port
