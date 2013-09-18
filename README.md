@@ -3,6 +3,13 @@ chainmail
 
 `chainmail` is a Python library for constructing and sending email.
 
+Installation
+============
+
+```bash
+$ pip install chainmail
+```
+
 Usage
 =====
 
