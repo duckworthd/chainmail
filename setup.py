@@ -17,7 +17,7 @@ setup(
       'Programming Language :: Python',
     ],
     install_requires = [      # dependencies
-      'bs4',  # UnicodeDammit
+      'beautifulsoup4',  # UnicodeDammit
     ],
     tests_require = [         # test dependencies
     ]
