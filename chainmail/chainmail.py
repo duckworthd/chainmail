@@ -1,9 +1,13 @@
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEBase import MIMEBase
-from email.MIMEText import MIMEText
-from email.Utils import COMMASPACE, formatdate
-from email.header import Header
-from email import Encoders
+from bs4.dammit             import UnicodeDammit
+from email                  import encoders
+from email.header           import Header
+from email.mime.application import MIMEApplication
+from email.mime.audio       import MIMEAudio
+from email.mime.base        import MIMEBase
+from email.mime.multipart   import MIMEMultipart
+from email.mime.text        import MIMEText
+from email.utils            import COMMASPACE, formatdate
+import mimetypes
 import smtplib
 
 
@@ -86,37 +90,28 @@ class Message(object):
 
   def build(self):
     """build message string"""
+    # There can be only ONE ENCODING TO RULE THEM ALL!! MUWAHAHAHA
+    subject, body = map(
+        lambda x: UnicodeDammit(x).unicode_markup,
+        [self._subject, self._body]
+      )
+
     msg = MIMEMultipart()
     msg['From']     = self._sender
     msg['To']       = COMMASPACE.join(self._recipients)
     msg['Date']     = formatdate(localtime=True)
-    msg['Subject']  = Header(self._subject, self._encoding)
+    msg['Subject']  = Header(subject, 'utf-8')
 
     # add body of email
     msg.attach(MIMEText(
-      self._body.encode(self._encoding),
+      body,
       _subtype=self._format,
-      _charset=self._encoding
+      _charset='utf-8',
     ))
 
     # add attachments
     for f in self._attachments:
-      # was f a path or an actual file?
-      is_path = isinstance(f, basestring)
-
-      part = MIMEBase('application', 'octet-stream')
-      if is_path:
-        f = open(f, "rb")
-        opened_locally = True
-      part.set_payload( f.read() )
-      Encoders.encode_base64(part)
-      part.add_header('Content-Disposition', 'attachment; filename="%s"' % (f.name,))
-      msg.attach(part)
-
-      if is_path:
-        f.close()
-      else:
-        f.seek(0)
+      msg.attach(_build_attachment(f))
 
     return msg.as_string()
 
@@ -221,3 +216,54 @@ class SMTP(object):
 
 class ChainmailException(Exception):
   pass
+
+
+def _build_attachment(f):
+  """Construct appropriate MIME message part for a multi-part email.
+
+  Parameters
+  ----------
+  f : str or file
+      path to content or content itself. Must have a `name` attribute.
+
+  Returns
+  -------
+  part : MIMEBase or subclass thereof
+      content ready to be attached to a `MIMEMultipart`
+  """
+  is_path = isinstance(f, basestring)
+
+  if is_path:
+    # open path as a file
+    f = open(f, 'rb')
+  else:
+    # return to this position later
+    position = f.tell()
+
+  ctype, encoding = mimetypes.guess_type(f.name)
+  if ctype is None or encoding is not None:
+    ctype = 'application/octet-stream'
+  maintype, subtype = ctype.split('/', 1)
+  if maintype == 'text':
+    # Note: we should handle calculating the charset
+    content = UnicodeDammit(f.read()).unicode_markup
+    part = MIMEText(content, _subtype=subtype, _charset='utf-8')
+  elif maintype == 'image':
+    part = MIMEImage(f.read(), _subtype=subtype)
+  elif maintype == 'audio':
+    part = MIMEAudio(f.read(), _subtype=subtype)
+  elif maintype == 'application':
+    part = MIMEApplication(f.read(), _subtype=subtype)
+  else:
+    part = MIMEBase(maintype, subtype)
+    part.set_payload(f.read())
+    encoders.encode_base64(part)
+
+  part.add_header('Content-Disposition', 'attachment', filename=f.name)
+
+  if is_path:
+    f.close()
+  else:
+    f.seek(position)
+
+  return part

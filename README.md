@@ -39,3 +39,10 @@ print smtp
 
 smtp.send(message)
 ```
+
+Text Encoding
+=============
+
+All text is forcibly encoded as unicode via BeautifulSoup's `UnicodeDammit`
+class. If your message is looking garbled, try encoding it unicode before
+attaching it.

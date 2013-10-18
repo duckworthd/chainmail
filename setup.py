@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'chainmail',
-    version = '0.1.1',
+    version = '0.1.2',
     author = 'Daniel Duckworth',
     author_email = 'duckworthd@gmail.com',
     description = 'Sending email is hard. Let\'s go shopping!',
@@ -17,6 +17,7 @@ setup(
       'Programming Language :: Python',
     ],
     install_requires = [      # dependencies
+      'bs4',  # UnicodeDammit
     ],
     tests_require = [         # test dependencies
     ]
